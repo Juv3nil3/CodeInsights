@@ -14,6 +14,8 @@ public class ClassData{
     private String comment;
 
     @ElementCollection
+    @CollectionTable(name = "class_data_annotations", joinColumns = @JoinColumn(name = "class_data_id"))
+    @Column(name = "annotation")
     private List<String> annotations = new ArrayList<>();
 
     @OneToMany(mappedBy = "classData", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -81,5 +83,18 @@ public class ClassData{
 
     public void setFields(List<FieldData> fields) {
         this.fields = fields;
+    }
+
+    @Override
+    public String toString() {
+        return "ClassData{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", comment='" + comment + '\'' +
+            ", annotations=" + annotations +
+            ", methods=" + methods +
+            ", fileData=" + fileData +
+            ", fields=" + fields +
+            '}';
     }
 }

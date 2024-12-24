@@ -35,6 +35,7 @@ public class FileData {
 
     // Getters and Setters
 
+
     public PackageData getPackageData() {
         return packageData;
     }
@@ -73,5 +74,17 @@ public class FileData {
 
     public void setClasses(List<ClassData> classes) {
         this.classes = classes;
+    }
+
+    @Override
+    public String toString() {
+        return "FileData{" +
+            "id=" + id +
+            ", fileName='" + fileName + '\'' +
+            ", repoName='" + repoName + '\'' +
+            ", filePath='" + filePath + '\'' +
+            ", classes=" + classes +
+            ", packageData=" + packageData +
+            '}';
     }
 }

@@ -112,11 +112,15 @@ public class JavaCodeParser {
                     classData.getMethods().add(methodData);
                 });
 
+                // Set the fileData reference in the classData
+                classData.setFileData(fileData);  // Important: associate the class with the file
+
                 fileData.getClasses().add(classData);
             });
 
         logger.debug("Completed extracting class data.");
     }
+
 
     /**
      * Extracts annotations from a node.
