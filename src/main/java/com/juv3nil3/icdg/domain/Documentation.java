@@ -26,7 +26,7 @@ public class Documentation {
         joinColumns = @JoinColumn(name = "documentation_id"), // Foreign key to Documentation
         inverseJoinColumns = @JoinColumn(name = "package_data_id")
     )
-    private List<PackageData> packages;
+    private List<PackageData> packages = new ArrayList<>();
 
     // Getters and Setters
 

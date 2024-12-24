@@ -11,17 +11,17 @@ public class ClassData extends AbstractBaseCodeData {
     private String comment;
 
     @ElementCollection
-    private List<String> annotations;
+    private List<String> annotations = new ArrayList<>();
 
     @OneToMany(mappedBy = "classData", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MethodData> methods;
+    private List<MethodData> methods = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "file_id", nullable = false)
     private FileData fileData;
 
     @OneToMany(mappedBy = "classData", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FieldData> fields = new ArrayList<>();
+    private List<FieldData> fields = new ArrayList<>() ;
 
     public ClassData() {}
 

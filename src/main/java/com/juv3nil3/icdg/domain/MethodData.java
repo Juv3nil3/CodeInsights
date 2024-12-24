@@ -4,6 +4,8 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,7 +15,7 @@ public class MethodData extends AbstractBaseCodeData {
     private String comment;
 
     @ElementCollection
-    private List<String> annotations;
+    private List<String> annotations = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "class_id")

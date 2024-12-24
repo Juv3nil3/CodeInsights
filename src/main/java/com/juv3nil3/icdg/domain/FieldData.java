@@ -1,6 +1,8 @@
 package com.juv3nil3.icdg.domain;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,7 +16,7 @@ public class FieldData {
     private String name; // Field name
 
     @ElementCollection
-    private List<String> annotations; // Annotations on the field
+    private List<String> annotations = new ArrayList<>(); // Annotations on the field
 
     @Column
     private String comment; // Optional field comment
