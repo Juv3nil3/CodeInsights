@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class ClassData extends AbstractBaseCodeData {
+public class ClassData{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
     private String comment;

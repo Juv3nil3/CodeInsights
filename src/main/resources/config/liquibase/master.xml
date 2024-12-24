@@ -19,9 +19,7 @@
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
   <include file="config/liquibase/changelog/create-package-data.xml" relativeToChangelogFile="false"/>
   <include file="config/liquibase/changelog/create-file-data.xml" relativeToChangelogFile="false"/>
-  <include file="config/liquibase/changelog/create-class-data.xml" relativeToChangelogFile="false"/>
-  <include file="config/liquibase/changelog/create-method-data.xml" relativeToChangelogFile="false"/>
-  <include file="config/liquibase/changelog/create-field-data.xml" relativeToChangelogFile="false"/>
+  <include file="config/liquibase/changelog/create class-method-field tables.xml" relativeToChangelogFile="false"/>
   <include file="config/liquibase/changelog/create-repository-metadata.xml" relativeToChangelogFile="false"/>
   <include file="config/liquibase/changelog/create-documentation.xml" relativeToChangelogFile="false"/>
 

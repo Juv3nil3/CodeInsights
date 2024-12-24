@@ -10,15 +10,15 @@ public abstract class AbstractBaseCodeData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+//    @Column(nullable = false, updatable = false)
+//    private LocalDateTime createdDate;
+//
+//    @Column(nullable = false)
+//    private LocalDateTime updatedDate;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedDate;
-
-    @Version
-    @Column(nullable = false)
-    private Integer version;
+//    @Version
+//    @Column(nullable = false)
+//    private Integer version;
 
     // Getters and Setters
     public Long getId() {
@@ -29,27 +29,4 @@ public abstract class AbstractBaseCodeData {
         this.id = id;
     }
 
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public LocalDateTime getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(LocalDateTime updatedDate) {
-        this.updatedDate = updatedDate;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
 }

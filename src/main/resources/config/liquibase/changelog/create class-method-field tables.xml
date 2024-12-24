@@ -1,0 +1,124 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <!-- Changeset 1: Create tables for class_data, method_data, and field_data -->
+  <changeSet id="001" author="juv3nil3">
+    <!-- Create class_data table -->
+    <createTable tableName="class_data">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)"/>
+      <column name="comment" type="TEXT"/>
+      <column name="file_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Create method_data table -->
+    <createTable tableName="method_data">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)"/>
+      <column name="comment" type="TEXT"/>
+      <column name="class_id" type="BIGINT"/>
+    </createTable>
+
+    <!-- Create field_data table -->
+    <createTable tableName="field_data">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)"/>
+      <column name="comment" type="TEXT"/>
+      <column name="class_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Create class_data_annotations table -->
+    <createTable tableName="class_data_annotations">
+      <column name="class_data_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="annotation" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Create method_data_annotations table -->
+    <createTable tableName="method_data_annotations">
+      <column name="method_data_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="annotation" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Create field_data_annotations table -->
+    <createTable tableName="field_data_annotations">
+      <column name="field_data_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="annotation" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <!-- Changeset 2: Add foreign key constraints -->
+  <changeSet id="002" author="juv3nil3">
+    <!-- Foreign key for class_data to file_data -->
+    <addForeignKeyConstraint baseTableName="class_data"
+                             baseColumnNames="file_id"
+                             referencedTableName="file_data"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             constraintName="fk_class_data_file_data"/>
+
+    <!-- Foreign key for method_data -->
+    <addForeignKeyConstraint baseTableName="method_data"
+                             baseColumnNames="class_id"
+                             referencedTableName="class_data"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             constraintName="fk_method_data_class_data"/>
+
+    <!-- Foreign key for field_data -->
+    <addForeignKeyConstraint baseTableName="field_data"
+                             baseColumnNames="class_id"
+                             referencedTableName="class_data"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             constraintName="fk_field_data_class_data"/>
+
+    <!-- Foreign key for method_data_annotations -->
+    <addForeignKeyConstraint baseTableName="method_data_annotations"
+                             baseColumnNames="method_data_id"
+                             referencedTableName="method_data"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             constraintName="fk_method_data_annotations_method_data"/>
+
+    <!-- Foreign key for field_data_annotations -->
+    <addForeignKeyConstraint baseTableName="field_data_annotations"
+                             baseColumnNames="field_data_id"
+                             referencedTableName="field_data"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             constraintName="fk_field_data_annotations_field_data"/>
+
+    <!-- Foreign key for class_data_annotations -->
+    <addForeignKeyConstraint baseTableName="class_data_annotations"
+                             baseColumnNames="class_data_id"
+                             referencedTableName="class_data"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             constraintName="fk_class_data_annotations_class_data"/>
+  </changeSet>
+
+</databaseChangeLog>

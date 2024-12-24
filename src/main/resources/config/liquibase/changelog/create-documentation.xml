@@ -23,7 +23,7 @@
   </changeSet>
 
 
-  <changeSet id="008" author="juv3nil3">
+  <changeSet id="006" author="juv3nil3">
     <!-- Create the documentation_packages join table -->
     <createTable tableName="documentation_packages">
       <column name="documentation_id" type="BIGINT">
