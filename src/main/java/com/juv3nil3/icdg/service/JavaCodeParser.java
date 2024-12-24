@@ -29,15 +29,26 @@ public class JavaCodeParser {
      * @throws Exception if the file cannot be parsed.
      */
     public FileData parseJavaFile(InputStream inputStream) throws Exception {
+        logger.info("Starting Java file parsing...");
+
         // Initialize FileData object
         FileData fileData = new FileData();
 
-        // Parse the Java file content using JavaParser
-        CompilationUnit compilationUnit = parseCompilationUnit(inputStream);
+        try {
+            // Parse the Java file content using JavaParser
+            CompilationUnit compilationUnit = parseCompilationUnit(inputStream);
+            logger.debug("Parsed CompilationUnit successfully.");
 
-        // Extract class data and populate FileData
-        extractClassData(compilationUnit, fileData);
+            // Extract class data and populate FileData
+            extractClassData(compilationUnit, fileData);
+            logger.info("Finished extracting class data.");
 
+        } catch (Exception e) {
+            logger.error("Error during Java file parsing: {}", e.getMessage(), e);
+            throw e;
+        }
+
+        logger.info("Java file parsing completed.");
         return fileData;
     }
 
@@ -49,11 +60,19 @@ public class JavaCodeParser {
      * @throws Exception If parsing fails.
      */
     private CompilationUnit parseCompilationUnit(InputStream inputStream) throws Exception {
+        logger.debug("Parsing input stream into CompilationUnit...");
         JavaParser parser = new JavaParser();
-        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        ParseResult<CompilationUnit> parseResult = parser.parse(content);
 
-        return parseResult.getResult().orElseThrow(() -> new IllegalArgumentException("Unable to parse the provided Java content"));
+        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        logger.debug("Java file content read successfully.");
+
+        ParseResult<CompilationUnit> parseResult = parser.parse(content);
+        if (!parseResult.isSuccessful()) {
+            logger.warn("ParseResult contains errors: {}", parseResult.getProblems());
+        }
+
+        return parseResult.getResult()
+            .orElseThrow(() -> new IllegalArgumentException("Unable to parse the provided Java content"));
     }
 
     /**
@@ -63,6 +82,7 @@ public class JavaCodeParser {
      * @param fileData        The FileData object to populate.
      */
     private void extractClassData(CompilationUnit compilationUnit, FileData fileData) {
+        logger.debug("Extracting class data from CompilationUnit...");
         compilationUnit
             .findAll(ClassOrInterfaceDeclaration.class)
             .forEach(clazz -> {
@@ -71,16 +91,31 @@ public class JavaCodeParser {
                 // Set class name and annotations
                 classData.setName(clazz.getNameAsString());
                 classData.setAnnotations(extractAnnotations(clazz));
+                logger.debug("Extracted class: {} with annotations: {}", classData.getName(), classData.getAnnotations());
 
                 // Set class comment (if available)
-                clazz.getComment().ifPresent(comment -> classData.setComment(comment.getContent()));
+                clazz.getComment().ifPresent(comment -> {
+                    classData.setComment(comment.getContent());
+                    logger.debug("Class comment: {}", comment.getContent());
+                });
 
                 // Extract fields and methods
-                clazz.getFields().forEach(field -> classData.getFields().add(extractFieldData(field)));
-                clazz.getMethods().forEach(method -> classData.getMethods().add(extractMethodData(method)));
+                clazz.getFields().forEach(field -> {
+                    FieldData fieldData = extractFieldData(field);
+                    logger.debug("Extracted field: {}", fieldData);
+                    classData.getFields().add(fieldData);
+                });
+
+                clazz.getMethods().forEach(method -> {
+                    MethodData methodData = extractMethodData(method);
+                    logger.debug("Extracted method: {}", methodData);
+                    classData.getMethods().add(methodData);
+                });
 
                 fileData.getClasses().add(classData);
             });
+
+        logger.debug("Completed extracting class data.");
     }
 
     /**
@@ -90,7 +125,11 @@ public class JavaCodeParser {
      * @return A list of annotation names.
      */
     private List<String> extractAnnotations(NodeWithAnnotations<?> node) {
-        return node.getAnnotations().stream().map(annotation -> annotation.getNameAsString()).collect(Collectors.toList());
+        List<String> annotations = node.getAnnotations().stream()
+            .map(annotation -> annotation.getNameAsString())
+            .collect(Collectors.toList());
+        logger.debug("Extracted annotations: {}", annotations);
+        return annotations;
     }
 
     /**
@@ -103,11 +142,17 @@ public class JavaCodeParser {
         FieldData fieldData = new FieldData();
 
         // Extract field name
-        field.getVariables().stream().findFirst().ifPresent(variable -> fieldData.setName(variable.getNameAsString()));
+        field.getVariables().stream().findFirst().ifPresent(variable -> {
+            fieldData.setName(variable.getNameAsString());
+            logger.debug("Field name: {}", fieldData.getName());
+        });
 
         // Extract annotations and comments
         fieldData.setAnnotations(extractAnnotations(field));
-        field.getComment().ifPresent(comment -> fieldData.setComment(comment.getContent()));
+        field.getComment().ifPresent(comment -> {
+            fieldData.setComment(comment.getContent());
+            logger.debug("Field comment: {}", comment.getContent());
+        });
 
         return fieldData;
     }
@@ -123,8 +168,13 @@ public class JavaCodeParser {
 
         // Extract method name, annotations, and comments
         methodData.setName(method.getNameAsString());
+        logger.debug("Method name: {}", methodData.getName());
+
         methodData.setAnnotations(extractAnnotations(method));
-        method.getComment().ifPresent(comment -> methodData.setComment(comment.getContent()));
+        method.getComment().ifPresent(comment -> {
+            methodData.setComment(comment.getContent());
+            logger.debug("Method comment: {}", comment.getContent());
+        });
 
         return methodData;
     }

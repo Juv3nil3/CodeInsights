@@ -121,7 +121,7 @@ Desktop.ini
 /src/main/java/com/juv3nil3/icdg/service/GithubService.java
 /src/main/java/com/juv3nil3/icdg/service/GithubTokenService.java
 /src/main/java/com/juv3nil3/icdg/service/JavaParserService.java
-/src/main/java/com/juv3nil3/icdg/service/RepositoryMetadataServiceService.java
+/src/main/java/com/juv3nil3/icdg/service/RepositoryMetadataService.java
 /src/main/java/com/juv3nil3/icdg/service/DocumentationGenerator.java
 /src/main/java/com/juv3nil3/icdg/web/rest/DocumentationController.java
 
