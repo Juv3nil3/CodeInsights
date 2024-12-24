@@ -120,7 +120,6 @@ Desktop.ini
 /src/main/java/com/juv3nil3/icdg/repository/
 /src/main/java/com/juv3nil3/icdg/service/
 /src/main/java/com/juv3nil3/icdg/web/rest/DocumentationController.java
-/src/main/resources/config/liquibase/
 
 
 ######################

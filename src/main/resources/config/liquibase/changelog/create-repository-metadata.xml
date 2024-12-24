@@ -1,0 +1,20 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <changeSet id="002" author="juv3nil3">
+    <createTable tableName="repository_metadata">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner" type="VARCHAR(255)"/>
+      <column name="repo_name" type="VARCHAR(255)"/>
+      <column name="description" type="TEXT"/>
+      <column name="latest_commit_hash" type="VARCHAR(255)"/>
+      <column name="default_branch" type="VARCHAR(255)"/>
+      <column name="created_at" type="TIMESTAMP"/>
+      <column name="updated_at" type="TIMESTAMP"/>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

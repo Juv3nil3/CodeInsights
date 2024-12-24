@@ -1,0 +1,56 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <changeSet id="001" author="juv3nil3">
+    <createTable tableName="documentation">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="repository_metadata_id" type="BIGINT"/>
+      <column name="export_path" type="VARCHAR(255)"/>
+      <column name="created_at" type="TIMESTAMP"/>
+      <column name="updated_at" type="TIMESTAMP"/>
+    </createTable>
+
+    <addForeignKeyConstraint constraintName="fk_documentation_repository_metadata"
+                             baseTableName="documentation"
+                             baseColumnNames="repository_metadata_id"
+                             referencedTableName="repository_metadata"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"/>
+  </changeSet>
+
+
+  <changeSet id="008" author="juv3nil3">
+    <!-- Create the documentation_packages join table -->
+    <createTable tableName="documentation_packages">
+      <column name="documentation_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="package_data_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Add foreign key constraint to the documentation_id column -->
+    <addForeignKeyConstraint
+      baseTableName="documentation_packages"
+      baseColumnNames="documentation_id"
+      referencedTableName="documentation"
+      referencedColumnNames="id"
+      constraintName="fk_documentation_packages_documentation"/>
+
+    <!-- Add foreign key constraint to the package_data_id column -->
+    <addForeignKeyConstraint
+      baseTableName="documentation_packages"
+      baseColumnNames="package_data_id"
+      referencedTableName="package_data"
+      referencedColumnNames="id"
+      constraintName="fk_documentation_packages_package_data"/>
+  </changeSet>
+
+</databaseChangeLog>
+
+

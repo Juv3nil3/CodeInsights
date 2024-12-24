@@ -1,0 +1,27 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <changeSet id="006" author="juv3nil3">
+    <createTable tableName="field_data">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="comment" type="TEXT"/>
+      <column name="class_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="field_data"
+                             baseColumnNames="class_id"
+                             referencedTableName="class_data"
+                             referencedColumnNames="id"
+                             onDelete="CASCADE"
+                             constraintName="fk_field_data_class_data"/>
+  </changeSet>
+</databaseChangeLog>

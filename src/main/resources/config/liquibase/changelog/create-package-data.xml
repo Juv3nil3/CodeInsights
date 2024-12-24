@@ -1,0 +1,30 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <changeSet id="003" author="juv3nil3">
+    <createTable tableName="package_data">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="package_name" type="VARCHAR(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="repo_name" type="VARCHAR(255)"/>
+      <column name="parent_package_id" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <!-- Foreign key constraint for the parent_package_id -->
+    <addForeignKeyConstraint
+      baseTableName="package_data"
+      baseColumnNames="parent_package_id"
+      constraintName="fk_parent_package"
+      referencedTableName="package_data"
+      referencedColumnNames="id"
+      deferrable="false"
+      initiallyDeferred="false"/>
+  </changeSet>
+</databaseChangeLog>
