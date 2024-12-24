@@ -119,7 +119,6 @@ Desktop.ini
 /deploy/
 /src/main/java/com/juv3nil3/icdg/service/DocumentationGenerationService.java
 /src/main/java/com/juv3nil3/icdg/service/GithubService.java
-/src/main/java/com/juv3nil3/icdg/service/GithubTokenService.java
 /src/main/java/com/juv3nil3/icdg/service/JavaParserService.java
 /src/main/java/com/juv3nil3/icdg/service/RepositoryMetadataService.java
 /src/main/java/com/juv3nil3/icdg/service/DocumentationGenerator.java
