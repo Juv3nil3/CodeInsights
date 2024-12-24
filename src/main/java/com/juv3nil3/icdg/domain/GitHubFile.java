@@ -47,4 +47,15 @@ public class GitHubFile {
     public void setSha(String sha) {
         this.sha = sha;
     }
+
+    @Override
+    public String toString() {
+        return "GitHubFile{" +
+            "name='" + name + '\'' +
+            ", path='" + path + '\'' +
+            ", type='" + type + '\'' +
+            ", download_url='" + download_url + '\'' +
+            ", sha='" + sha + '\'' +
+            '}';
+    }
 }
