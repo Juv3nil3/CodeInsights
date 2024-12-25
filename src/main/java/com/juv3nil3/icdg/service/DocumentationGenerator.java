@@ -8,11 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.print.Doc;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Service
 public class DocumentationGenerator {
 
@@ -20,6 +25,9 @@ public class DocumentationGenerator {
     private final PackageDataRepository packageDataRepository;
     private final RepositoryMetadataService repositoryMetadataService;
     private static final Logger logger = LoggerFactory.getLogger(DocumentationGenerator.class);
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public DocumentationGenerator(
@@ -58,16 +66,22 @@ public class DocumentationGenerator {
         if (packages.isEmpty()) {
             throw new IllegalArgumentException("No data found for repository: " + repoName);
         }
+        // Step 2: Merge detached PackageData entities
+        List<PackageData> managedPackages = new ArrayList<>();
+        for (PackageData packageData : packages) {
+            managedPackages.add(entityManager.merge(packageData));
+        }
 
-        // Step 2: Create a Documentation object
+        // Step 3: Create a Documentation object
         Documentation documentation = new Documentation();
-
         documentation.setRepositoryMetadata(metadata); // Link the metadata
         documentation.setExportPath("/path/to/export"); // Example, adjust as needed
         documentation.setCreatedAt(LocalDateTime.now());
+        documentation.setPackages(managedPackages); // Use the managed packages
 
-        // Step 3: Save the documentation object to the database
+        // Step 4: Save the documentation object to the database
         documentationRepository.save(documentation);
+
         return documentation;
     }
 
@@ -76,6 +90,7 @@ public class DocumentationGenerator {
 
         // Add repository name and description
         output.append("### Repository: ").append(documentation.getRepositoryMetadata().getRepoName()).append("\n\n");
+        output.append("### Owner: ").append(documentation.getRepositoryMetadata().getOwner()).append("\n\n");
         output.append(documentation.getRepositoryMetadata().getDescription()).append("\n\n");
 
         // Traverse and format packages, files, classes, methods, and fields
