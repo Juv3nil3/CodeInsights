@@ -6,9 +6,7 @@ import com.juv3nil3.icdg.repository.DocumentationRepository;
 import com.juv3nil3.icdg.repository.FileDataRepository;
 import com.juv3nil3.icdg.repository.PackageDataRepository;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.print.Doc;
 
@@ -175,51 +173,57 @@ public class DocumentationGenerator {
     public Documentation ensureDocumentationLoaded(Documentation documentation) {
         logger.debug("Ensuring documentation is loaded with all related entities...");
 
-        // Check if documentation is already fully initialized
         if (!isDocumentationFullyInitialized(documentation)) {
             logger.debug("Packages not initialized, loading eagerly...");
 
-            // Load documentation with all related packages eagerly (without fetching files, classes, methods, and fields)
-            Optional<Documentation> eagerlyLoadedDocOpt = documentationRepository.findDocumentationWithPackages(documentation.getRepositoryMetadata());
+            Documentation eagerlyLoadedDoc = loadDocumentationWithPackages(documentation);
 
-            if (eagerlyLoadedDocOpt.isPresent()) {
-                logger.debug("Eagerly loaded documentation with packages.");
+            // Load and associate files with packages
+            associateFilesWithPackages(eagerlyLoadedDoc);
 
-                documentation.setPackages(eagerlyLoadedDocOpt.get().getPackages());
+            // Fetch methods and fields for classes
+            fetchAndInitializeClassDetails(eagerlyLoadedDoc);
 
-                // Now load the files and related entities (e.g., classes, methods, fields) separately
-                List<FileData> files = fileDataRepository.findFilesWithClasses(documentation.getPackages());
-                files.forEach(file -> {
-                    file.getClasses().forEach(clazz -> {
-                        clazz.getMethods().size();  // Force initialization of methods
-                        clazz.getFields().size();   // Force initialization of fields
-                    });
-                });
-                documentation.getPackages().forEach(packageData -> {
-                    packageData.getFiles().addAll(files);  // Attach loaded files to packages
-                });
-                // Fetch methods and fields separately for classes
-                List<ClassData> classes = files.stream()
-                    .flatMap(file -> file.getClasses().stream())
-                    .collect(Collectors.toList());
-
-                // Load methods for the classes
-                List<ClassData> classesWithMethods = classRepository.findClassesWithMethods(classes);
-                // Load fields for the classes
-                List<ClassData> classesWithFields = classRepository.findClassesWithFields(classes);
-
-                // After fetching methods and fields, we can make sure those collections are initialized
-                classesWithMethods.forEach(clazz -> clazz.getMethods().size()); // Initialize methods
-                classesWithFields.forEach(clazz -> clazz.getFields().size());  // Initialize fields
-            } else {
-                logger.error("Documentation not found for repository: {}", documentation.getRepositoryMetadata().getRepoName());
-                throw new EntityNotFoundException("Documentation not found");
-            }
+            return eagerlyLoadedDoc;
         } else {
             logger.debug("Packages already initialized, proceeding.");
+            return documentation;
         }
+    }
 
-        return documentation;
+    private Documentation loadDocumentationWithPackages(Documentation documentation) {
+        Optional<Documentation> docOpt = documentationRepository.findDocumentationWithPackages(documentation.getRepositoryMetadata());
+        if (docOpt.isPresent()) {
+            logger.debug("Eagerly loaded documentation with packages.");
+            Documentation doc = docOpt.get();
+            documentation.setPackages(doc.getPackages());
+            return documentation;
+        } else {
+            logger.error("Documentation not found for repository: {}", documentation.getRepositoryMetadata().getRepoName());
+            throw new EntityNotFoundException("Documentation not found");
+        }
+    }
+
+    private void associateFilesWithPackages(Documentation documentation) {
+        List<FileData> files = fileDataRepository.findFilesWithClasses(documentation.getPackages());
+        Map<String, List<FileData>> filesByPackage = files.stream()
+            .collect(Collectors.groupingBy(file -> file.getPackageData().getPackageName()));
+
+        documentation.getPackages().forEach(packageData -> {
+            List<FileData> filesForPackage = filesByPackage.getOrDefault(packageData.getPackageName(), Collections.emptyList());
+            packageData.getFiles().addAll(filesForPackage);
+            logger.info("Package: {} has {} files", packageData.getPackageName(), filesForPackage.size());
+        });
+    }
+
+    private void fetchAndInitializeClassDetails(Documentation documentation) {
+        List<ClassData> classes = documentation.getPackages().stream()
+            .flatMap(pkg -> pkg.getFiles().stream())
+            .flatMap(file -> file.getClasses().stream())
+            .collect(Collectors.toList());
+
+        classRepository.findClassesWithMethods(classes).forEach(clazz -> clazz.getMethods().size());
+        classRepository.findClassesWithFields(classes).forEach(clazz -> clazz.getFields().size());
     }
 
 
