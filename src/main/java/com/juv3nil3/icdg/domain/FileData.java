@@ -36,6 +36,10 @@ public class FileData {
     // Getters and Setters
 
 
+    public Long getId() {
+        return id;
+    }
+
     public PackageData getPackageData() {
         return packageData;
     }
@@ -83,8 +87,7 @@ public class FileData {
             ", fileName='" + fileName + '\'' +
             ", repoName='" + repoName + '\'' +
             ", filePath='" + filePath + '\'' +
-            ", classes=" + classes +
-            ", packageData=" + packageData +
+            ", numberOfClasses=" + (classes != null ? classes.size() : 0) +
             '}';
     }
 }

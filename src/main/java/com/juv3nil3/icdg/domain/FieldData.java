@@ -16,13 +16,15 @@ public class FieldData {
     private String name; // Field name
 
     @ElementCollection
+    @CollectionTable(name = "field_data_annotations", joinColumns = @JoinColumn(name = "field_data_id"))
+    @Column(name = "annotation")
     private List<String> annotations = new ArrayList<>(); // Annotations on the field
 
     @Column
     private String comment; // Optional field comment
 
-    @ManyToOne
-    @JoinColumn(name = "class_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "class_id")
     private ClassData classData; // Reference to the parent class
 
     public FieldData() {}

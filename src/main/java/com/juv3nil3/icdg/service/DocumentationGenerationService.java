@@ -102,6 +102,23 @@ public class DocumentationGenerationService {
     }
 
     /**
+     * Process a single Java file to generate and save documentation.
+     *
+     * @param owner       GitHub repository owner.
+     * @param repo        GitHub repository name.
+     * @param file        The GitHubFile object representing the Java file.
+     * @param accessToken Personal access token for GitHub API.
+     * @throws Exception if an error occurs during file processing.
+     */
+    private void processJavaFile(String owner, String repo, GitHubFile file, String accessToken) throws Exception {
+        // Fetch file content from GitHub
+        String content = githubService.fetchFileContent(owner, repo, file.getPath(), accessToken);
+
+        // Parse the Java file content
+        javaParserService.parseAndSaveFileFromContent(repo, file.getPath(), content);
+    }
+
+    /**
      * Fetch all Java files from the GitHub repository.
      *
      * @param owner       GitHub repository owner.
@@ -118,20 +135,5 @@ public class DocumentationGenerationService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Process a single Java file to generate and save documentation.
-     *
-     * @param owner       GitHub repository owner.
-     * @param repo        GitHub repository name.
-     * @param file        The GitHubFile object representing the Java file.
-     * @param accessToken Personal access token for GitHub API.
-     * @throws Exception if an error occurs during file processing.
-     */
-    private void processJavaFile(String owner, String repo, GitHubFile file, String accessToken) throws Exception {
-        // Fetch file content from GitHub
-        String content = githubService.fetchFileContent(owner, repo, file.getPath(), accessToken);
 
-        // Parse the Java file content
-        javaParserService.parseAndSaveFileFromContent(repo, file.getPath(), content);
-    }
 }

@@ -30,12 +30,13 @@ public class ClassData{
 
     public ClassData() {}
 
-    public ClassData(String name, List<String> annotations, String comment, FileData savedFileData) {
-        super();
-    }
 
     // Getters and Setters
 
+
+    public Long getId() {
+        return id;
+    }
 
     public String getName() {
         return name;
@@ -92,9 +93,8 @@ public class ClassData{
             ", name='" + name + '\'' +
             ", comment='" + comment + '\'' +
             ", annotations=" + annotations +
-            ", methods=" + methods +
-            ", fileData=" + fileData +
-            ", fields=" + fields +
+            ", numberOfFields=" + (fields != null ? fields.size() : 0) +
+            ", numberOfMethods=" + (methods != null ? methods.size() : 0) +
             '}';
     }
 }

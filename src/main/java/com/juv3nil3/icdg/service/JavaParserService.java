@@ -12,8 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class JavaParserService {
 
     private final FileDataRepository fileDataRepository;
@@ -64,6 +66,9 @@ public class JavaParserService {
 
             // Save the FileData and related entities
             saveFileData(fileData);
+        } catch (Exception e) {
+            logger.error("Error parsing and saving file: repoName={}, filePath={}", repoName, filePath, e);
+            throw e;
         }
     }
 
@@ -73,39 +78,30 @@ public class JavaParserService {
      * @param fileData The parsed FileData to save.
      */
     private void saveFileData(FileData fileData) {
-        // Log the entire fileData object
         logger.info("Saving FileData: {}", fileData);
 
         FileData savedFileData = fileDataRepository.save(fileData);
+        logger.info("Filedata saved: {}", savedFileData.getId());
 
-        // Iterate over associated ClassData objects
         for (ClassData parsedClass : fileData.getClasses()) {
             // Ensure the association with FileData is set before saving
             parsedClass.setFileData(savedFileData);
-
-            // Log the classData before saving
             logger.info("Saving ClassData: {}", parsedClass);
 
-            // Save ClassData with the file association
             ClassData savedClassData = classDataRepository.save(parsedClass);
+            logger.info("ClassData saved: {}", savedClassData.getId());
 
-            // Save associated fields and methods for the ClassData
-            saveFieldData(parsedClass.getFields(), savedClassData);
-            saveMethodData(parsedClass.getMethods(), savedClassData);
+            // Check if ClassData ID is set properly
+            if (savedClassData.getId() == null) {
+                logger.error("ClassData ID is null for class: {}", parsedClass.getName());
+                // Handle the situation where the class ID is not generated
+            }
+
+            saveMethodData(parsedClass.getMethods(),savedClassData);
+            saveFieldData(parsedClass.getFields(),savedClassData);
         }
     }
 
-    /**
-     * Saves ClassData to the database.
-     *
-     * @param classData   The ClassData to save.
-     * @param fileData    The associated FileData.
-     * @return The saved ClassData entity.
-     */
-    private ClassData saveClassData(ClassData classData, FileData fileData) {
-        ClassData newClassData = new ClassData(classData.getName(), classData.getAnnotations(), classData.getComment(), fileData);
-        return classDataRepository.save(newClassData);
-    }
 
     /**
      * Saves FieldData to the database.
@@ -115,8 +111,10 @@ public class JavaParserService {
      */
     private void saveFieldData(List<FieldData> fields, ClassData classData) {
         for (FieldData field : fields) {
-            FieldData newFieldData = new FieldData(field.getName(), field.getAnnotations(), field.getComment(), classData);
-            fieldDataRepository.save(newFieldData);
+            // Ensure classData is set for each FieldData
+            field.setClassData(classData);
+            logger.debug("Saving FieldData: {} for ClassData ID: {}", field.getName(), classData.getId());
+            fieldDataRepository.save(field);
         }
     }
 
@@ -128,8 +126,10 @@ public class JavaParserService {
      */
     private void saveMethodData(List<MethodData> methods, ClassData classData) {
         for (MethodData method : methods) {
-            MethodData newMethodData = new MethodData(method.getName(), method.getAnnotations(), method.getComment(), classData);
-            methodDataRepository.save(newMethodData);
+            // Ensure classData is set for each MethodData
+            method.setClassData(classData);
+            logger.debug("Saving MethodData: {} for ClassData ID: {}", method.getName(), classData.getId());
+            methodDataRepository.save(method);
         }
     }
 

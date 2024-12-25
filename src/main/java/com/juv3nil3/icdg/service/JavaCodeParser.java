@@ -82,44 +82,75 @@ public class JavaCodeParser {
      * @param fileData        The FileData object to populate.
      */
     private void extractClassData(CompilationUnit compilationUnit, FileData fileData) {
+        if (fileData == null) {
+            throw new IllegalArgumentException("FileData cannot be null");
+        }
+
         logger.debug("Extracting class data from CompilationUnit...");
+
         compilationUnit
             .findAll(ClassOrInterfaceDeclaration.class)
             .forEach(clazz -> {
-                ClassData classData = new ClassData();
+                try {
+                    ClassData classData = new ClassData();
 
-                // Set class name and annotations
-                classData.setName(clazz.getNameAsString());
-                classData.setAnnotations(extractAnnotations(clazz));
-                logger.debug("Extracted class: {} with annotations: {}", classData.getName(), classData.getAnnotations());
+                    // Set class name and annotations
+                    classData.setName(clazz.getNameAsString());
+                    classData.setAnnotations(extractAnnotations(clazz));
+                    logger.debug("Extracted class: {} with annotations: {}", classData.getName(), classData.getAnnotations());
 
-                // Set class comment (if available)
-                clazz.getComment().ifPresent(comment -> {
-                    classData.setComment(comment.getContent());
-                    logger.debug("Class comment: {}", comment.getContent());
-                });
+                    // Set class comment (if available)
+                    clazz.getComment().ifPresent(comment -> {
+                        classData.setComment(comment.getContent());
+                        logger.debug("Class comment: {}", comment.getContent());
+                    });
 
-                // Extract fields and methods
-                clazz.getFields().forEach(field -> {
-                    FieldData fieldData = extractFieldData(field);
-                    logger.debug("Extracted field: {}", fieldData);
-                    classData.getFields().add(fieldData);
-                });
+                    // Extract fields
+                    clazz.getFields().forEach(field -> {
+                        FieldData fieldData = extractFieldData(field);
+                        if (fieldData != null) {
+                            logger.debug("Extracted field: {}", fieldData);
+                            classData.getFields().add(fieldData);
+                        } else {
+                            logger.warn("Skipped null field for class: {}", classData.getName());
+                        }
+                    });
 
-                clazz.getMethods().forEach(method -> {
-                    MethodData methodData = extractMethodData(method);
-                    logger.debug("Extracted method: {}", methodData);
-                    classData.getMethods().add(methodData);
-                });
+                    // Extract methods
+                    clazz.getMethods().forEach(method -> {
+                        MethodData methodData = extractMethodData(method);
+                        if (methodData != null) {
+                            logger.debug("Extracted method: {}", methodData);
+                            classData.getMethods().add(methodData);
+                        } else {
+                            logger.warn("Skipped null method for class: {}", classData.getName());
+                        }
+                    });
 
-                // Set the fileData reference in the classData
-                classData.setFileData(fileData);  // Important: associate the class with the file
+                    // Check if the class has any fields or methods
+                    if (classData.getFields().isEmpty() && classData.getMethods().isEmpty()) {
+                        logger.warn("Class {} has no fields or methods. Skipping addition to fileData.", classData.getName());
+                        return; // Skip this class
+                    }
 
-                fileData.getClasses().add(classData);
+                    // Set the fileData reference in the classData
+                    classData.setFileData(fileData); // Important: associate the class with the file
+
+                    // Avoid duplicate classes in fileData
+                    if (fileData.getClasses().stream().noneMatch(existingClass -> existingClass.getName().equals(classData.getName()))) {
+                        fileData.getClasses().add(classData);
+                    } else {
+                        logger.warn("Duplicate class {} found. Skipping addition to fileData.", classData.getName());
+                    }
+
+                } catch (Exception e) {
+                    logger.error("Error extracting class data for class in file: {}", fileData.getFilePath(), e);
+                }
             });
 
-        logger.debug("Completed extracting class data.");
+        logger.debug("Completed extracting class data for file: {}", fileData.getFilePath());
     }
+
 
 
     /**

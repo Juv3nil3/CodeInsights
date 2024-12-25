@@ -16,16 +16,16 @@ public class MethodData {
     private String comment;
 
     @ElementCollection
+    @CollectionTable(name = "method_data_annotations", joinColumns = @JoinColumn(name = "method_data_id"))
+    @Column(name = "annotation")
     private List<String> annotations = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "class_id")
     private ClassData classData;
 
-    public MethodData() {}
-
-    public MethodData(String name, List<String> annotations, String comment, ClassData savedClassData) {
-        super();
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
@@ -52,7 +52,6 @@ public class MethodData {
         this.annotations = annotations;
     }
 
-    // Getters and Setters
     public ClassData getClassData() {
         return classData;
     }
