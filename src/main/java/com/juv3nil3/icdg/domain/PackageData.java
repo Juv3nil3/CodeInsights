@@ -16,14 +16,14 @@ public class PackageData {
 
     private String repoName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_package_id")
     private PackageData parentPackage; // Reference to the parent package (null for top-level)
 
-    @OneToMany(mappedBy = "parentPackage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parentPackage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<PackageData> subPackages = new ArrayList<>(); // Sub-packages of this package
 
-    @OneToMany(mappedBy = "packageData", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "packageData", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FileData> files = new ArrayList<>();
 
     public PackageData() {}

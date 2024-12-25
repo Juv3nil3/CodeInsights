@@ -15,7 +15,7 @@ public class FileData {
     private String repoName;
     private String filePath; // Full path including the file name
 
-    @OneToMany(mappedBy = "fileData", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "fileData", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
     private List<ClassData> classes = new ArrayList<>();
 
     @ManyToOne

@@ -20,7 +20,7 @@ public class Documentation {
     private LocalDateTime createdAt; // Timestamp when the documentation was created
     private LocalDateTime updatedAt; // Timestamp when the documentation was last updated
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
         name = "documentation_packages", // Join table name
         joinColumns = @JoinColumn(name = "documentation_id"), // Foreign key to Documentation

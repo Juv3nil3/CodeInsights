@@ -18,15 +18,15 @@ public class ClassData{
     @Column(name = "annotation")
     private List<String> annotations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "classData", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "classData", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<MethodData> methods = new ArrayList<>();
+
+    @OneToMany(mappedBy = "classData", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<FieldData> fields = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "file_id", nullable = false)
     private FileData fileData;
-
-    @OneToMany(mappedBy = "classData", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FieldData> fields = new ArrayList<>() ;
 
     public ClassData() {}
 
