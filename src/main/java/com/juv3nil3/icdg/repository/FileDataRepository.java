@@ -12,7 +12,8 @@ import java.util.List;
 @Repository
 public interface FileDataRepository extends JpaRepository<FileData, Long> {
 
-    @Query("SELECT f FROM FileData f LEFT JOIN FETCH f.classes c LEFT JOIN FETCH c.methods m LEFT JOIN FETCH c.fields WHERE f.packageData IN :packages")
-    List<FileData> findFilesWithClassesAndMethods(@Param("packages") List<PackageData> packages);
+    @Query("SELECT f FROM FileData f LEFT JOIN FETCH f.classes c WHERE f.packageData IN :packages")
+    List<FileData> findFilesWithClasses(@Param("packages") List<PackageData> packages);
+
 
 }

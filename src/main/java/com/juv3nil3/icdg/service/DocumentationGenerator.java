@@ -1,6 +1,7 @@
 package com.juv3nil3.icdg.service;
 
 import com.juv3nil3.icdg.domain.*;
+import com.juv3nil3.icdg.repository.ClassDataRepository;
 import com.juv3nil3.icdg.repository.DocumentationRepository;
 import com.juv3nil3.icdg.repository.FileDataRepository;
 import com.juv3nil3.icdg.repository.PackageDataRepository;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.print.Doc;
 
 import jakarta.persistence.EntityManager;
@@ -26,6 +28,7 @@ public class DocumentationGenerator {
     private final DocumentationRepository documentationRepository;
     private final PackageDataRepository packageDataRepository;
     private final FileDataRepository fileDataRepository;
+    private final ClassDataRepository classRepository;
     private final RepositoryMetadataService repositoryMetadataService;
     private static final Logger logger = LoggerFactory.getLogger(DocumentationGenerator.class);
 
@@ -35,12 +38,13 @@ public class DocumentationGenerator {
     @Autowired
     public DocumentationGenerator(
         DocumentationRepository documentationRepository,
-        PackageDataRepository packageDataRepository, FileDataRepository fileDataRepository,
+        PackageDataRepository packageDataRepository, FileDataRepository fileDataRepository, ClassDataRepository classRepository,
         RepositoryMetadataService repositoryMetadataService
     ) {
         this.documentationRepository = documentationRepository;
         this.packageDataRepository = packageDataRepository;
         this.fileDataRepository = fileDataRepository;
+        this.classRepository = classRepository;
         this.repositoryMetadataService = repositoryMetadataService;
     }
 
@@ -184,7 +188,7 @@ public class DocumentationGenerator {
                 documentation.setPackages(eagerlyLoadedDocOpt.get().getPackages());
 
                 // Now load the files and related entities (e.g., classes, methods, fields) separately
-                List<FileData> files = fileDataRepository.findFilesWithClassesAndMethods(documentation.getPackages());
+                List<FileData> files = fileDataRepository.findFilesWithClasses(documentation.getPackages());
                 files.forEach(file -> {
                     file.getClasses().forEach(clazz -> {
                         clazz.getMethods().size();  // Force initialization of methods
@@ -194,7 +198,19 @@ public class DocumentationGenerator {
                 documentation.getPackages().forEach(packageData -> {
                     packageData.getFiles().addAll(files);  // Attach loaded files to packages
                 });
+                // Fetch methods and fields separately for classes
+                List<ClassData> classes = files.stream()
+                    .flatMap(file -> file.getClasses().stream())
+                    .collect(Collectors.toList());
 
+                // Load methods for the classes
+                List<ClassData> classesWithMethods = classRepository.findClassesWithMethods(classes);
+                // Load fields for the classes
+                List<ClassData> classesWithFields = classRepository.findClassesWithFields(classes);
+
+                // After fetching methods and fields, we can make sure those collections are initialized
+                classesWithMethods.forEach(clazz -> clazz.getMethods().size()); // Initialize methods
+                classesWithFields.forEach(clazz -> clazz.getFields().size());  // Initialize fields
             } else {
                 logger.error("Documentation not found for repository: {}", documentation.getRepositoryMetadata().getRepoName());
                 throw new EntityNotFoundException("Documentation not found");
